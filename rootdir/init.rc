@@ -9,9 +9,6 @@ import /init.usb.rc
 import /init.${ro.hardware}.rc
 import /init.${ro.zygote}.rc
 import /init.trace.rc
-# Include CM's extra init file
-import /init.cm.rc
-
 
 on early-init
     # Set init and its forked children's oom_adj.
@@ -35,7 +32,8 @@ on early-init
 on init
     sysclktz 0
 
-    loglevel 3
+loglevel 6 ####
+    write /proc/bootprof "INIT: on init start" ####
 
     # Backward compatibility
     symlink /system/etc /etc
@@ -62,7 +60,6 @@ on init
     write /sys/fs/cgroup/memory/sw/memory.move_charge_at_immigrate 1
     chown root system /sys/fs/cgroup/memory/sw/tasks
     chmod 0660 /sys/fs/cgroup/memory/sw/tasks
-    chmod 0220 /sys/fs/cgroup/memory/cgroup.event_control
 
     mkdir /system
     mkdir /data 0771 system system
@@ -154,6 +151,9 @@ on init
     mount pstore pstore /sys/fs/pstore
     chown system log /sys/fs/pstore/console-ramoops
     chmod 0440 /sys/fs/pstore/console-ramoops
+
+	# ion device
+	chmod 0666 /dev/ion
 
 # Healthd can trigger a full boot from charger mode by signaling this
 # property when the power button is held.
@@ -254,7 +254,6 @@ on post-fs-data
     # create basic filesystem structure
     mkdir /data/misc 01771 system misc
     mkdir /data/misc/adb 02750 system shell
-    mkdir /data/misc/audit 02750 audit system
     mkdir /data/misc/bluedroid 0770 bluetooth net_bt_stack
     mkdir /data/misc/bluetooth 0770 system system
     mkdir /data/misc/keystore 0700 keystore keystore
@@ -286,7 +285,6 @@ on post-fs-data
     mkdir /data/app-lib 0771 system system
     mkdir /data/app 0771 system system
     mkdir /data/property 0700 root root
-    mkdir /data/tombstones 0771 system system
 
     # create dalvik-cache, so as to enforce our permissions
     mkdir /data/dalvik-cache 0771 root root
@@ -302,7 +300,8 @@ on post-fs-data
 
     # create directory for DRM plug-ins - give drm the read/write access to
     # the following directory.
-    mkdir /data/drm 0770 drm drm
+    mkdir /data/drm 0770 drm drm ####
+    # mkdir /data/drm 0774 drm system ####
 
     # create directory for MediaDrm plug-ins - give drm the read/write access to
     # the following directory.
@@ -316,14 +315,15 @@ on post-fs-data
     # Separate location for storing security policy files on data
     mkdir /data/security 0711 system system
 
+    # add for mediaserver data
+    mkdir /data/mediaserver 0775 media media
+    restorecon /data/mediaserver
+
     # Reload policy from /data/security if present.
     setprop selinux.reload_policy 1
 
     # Set SELinux security contexts on upgrade or policy update.
     restorecon_recursive /data
-    restorecon /data/data
-    restorecon /data/user
-    restorecon /data/user/0
 
     # If there is no fs-post-data action in the init.<device>.rc file, you
     # must uncomment this line, otherwise encrypted filesystems
@@ -400,7 +400,6 @@ on boot
     chown system system /sys/class/timed_output/vibrator/enable
     chown system system /sys/class/leds/keyboard-backlight/brightness
     chown system system /sys/class/leds/lcd-backlight/brightness
-    chown system system /sys/class/leds/torch-light/brightness
     chown system system /sys/class/leds/button-backlight/brightness
     chown system system /sys/class/leds/jogball-backlight/brightness
     chown system system /sys/class/leds/red/brightness
@@ -499,12 +498,7 @@ service console /system/bin/sh
     console
     disabled
     user shell
-    group shell log
     seclabel u:r:shell:s0
-
-service auditd /system/bin/auditd -k
-    seclabel u:r:logd:s0
-    class main
 
 on property:ro.debuggable=1
     start console
@@ -554,12 +548,13 @@ service debuggerd /system/bin/debuggerd
 service debuggerd64 /system/bin/debuggerd64
     class main
 
+# for using TK init.modem.rc rild-daemon setting
 #service ril-daemon /system/bin/rild
 #    class main
 #    socket rild stream 660 root radio
 #    socket rild-debug stream 660 radio system
 #    user root
-#    group radio cache inet misc audio sdcard_rw qcom_diag log
+#    group radio cache inet misc audio log
 
 service surfaceflinger /system/bin/surfaceflinger
     class core
@@ -567,15 +562,22 @@ service surfaceflinger /system/bin/surfaceflinger
     group graphics drmrpc
     onrestart restart zygote
 
+#make sure drm server has rights to read and write sdcard ####
 service drm /system/bin/drmserver
     class main
     user drm
-    group drm system inet drmrpc
+    # group drm system inet drmrpc ####
+    group drm system inet drmrpc sdcard_r ####
 
 service media /system/bin/mediaserver
     class main
-    user media
-    group audio camera inet net_bt net_bt_admin net_bw_acct drmrpc mediadrm qcom_diag system media
+    user root ####
+#   google default ####
+#   user media    ####
+    group audio camera inet net_bt net_bt_admin net_bw_acct drmrpc mediadrm media sdcard_r system net_bt_stack ####
+#   google default ####
+#   group audio camera inet net_bt net_bt_admin net_bw_acct drmrpc mediadrm ####
+
     ioprio rt 4
 
 # One shot invocation to deal with encrypted volume.
@@ -595,7 +597,8 @@ service encrypt /system/bin/vdc --wait cryptfs enablecrypto inplace default
 service bootanim /system/bin/bootanimation
     class core
     user graphics
-    group graphics audio
+#    group graphics audio ####
+    group graphics media audio ####
     disabled
     oneshot
 
@@ -603,15 +606,10 @@ service installd /system/bin/installd
     class main
     socket installd stream 600 system system
 
-service flash_recovery /system/bin/install-recovery.sh
+service flash_recovery /system/bin/xxxxx
     class main
     seclabel u:r:install_recovery:s0
     oneshot
-    disabled
-
-# update recovery if enabled
-on property:persist.sys.recovery_update=true
-    start flash_recovery
 
 service racoon /system/bin/racoon
     class main
@@ -653,22 +651,16 @@ service pre-recovery /system/bin/uncrypt
     disabled
     oneshot
 
-on property:persist.sys.myloggerd=true
-   start myloggerd
-
-on property:persist.sys.myloggerd=false
-   stop myloggerd
-
-service myloggerd /system/bin/logcat -v threadtime -b all -r 1024 -n 50 -f /data/local/logcat.log
+#add for sales info
+service salesinfo /system/bin/salesinfocontroll
     class main
+    socket salesinfo stream 660 system system
+    oneshot
+
+service proximity_daemon /system/bin/proximity_daemon
+    user root
+    oneshot
     disabled
+    on property:service.nvram_init=Ready
+    start proximity_daemon
 
-on property:persist.sys.mykloggerd=true
-   start mykloggerd
-
-on property:persist.sys.mykloggerd=false
-   stop mykloggerd
-
-service mykloggerd /system/bin/logwrapper /system/bin/cat /proc/kmsg
-    class main
-    disabled

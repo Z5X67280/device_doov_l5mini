@@ -26,6 +26,8 @@ on early-init
     mkdir /mnt 0775 root system
 
 on init
+	setprop factory.composite.usb.pid 2006
+	setprop factory.composite.usb.func mass_storage,adb,acm
 
 sysclktz 0
 
@@ -201,10 +203,10 @@ on post-fs-data
     chown system system /persist
     chmod 0771 /persist
 # create basic filesystem structure
-    #mkdir /data/nvram 2770 root system
+    #mkdir /data/nvram 0770 root system
     # We chown/chmod /nvdata again so because mount is run as root + defaults
     chown root system /nvdata
-    chmod 2770 /nvdata
+    chmod 0770 /nvdata
     symlink /nvdata /data/nvram
 
     # Set SELinux security contexts on upgrade or policy update.
@@ -561,9 +563,9 @@ on property:ro.boot.usbconfig=0
     write /sys/class/android_usb/android0/iSerial $ro.serialno
     write /sys/class/android_usb/android0/enable 0
     write /sys/class/android_usb/android0/idVendor 0e8d
-    write /sys/class/android_usb/android0/idProduct 2006
+    write /sys/class/android_usb/android0/idProduct ${factory.composite.usb.pid}
     write /sys/class/android_usb/android0/f_acm/instances 1
-    write /sys/class/android_usb/android0/functions mass_storage,adb,acm
+    write /sys/class/android_usb/android0/functions ${factory.composite.usb.func}
     write /sys/class/android_usb/android0/enable 1
     start adbd
     setprop sys.usb.acm_idx 1
