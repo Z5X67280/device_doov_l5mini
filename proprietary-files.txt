@@ -76,14 +76,14 @@ lib64/libcam1_utils.so
 lib/libcam1_utils.so
 lib/libcam3_app.so
 lib64/libcam3_app.so
-lib/libmeizucamera.so # MODULE
-lib64/libmeizucamera.so # MODULE
+# lib/libmeizucamera.so # MODULE
+# lib64/libmeizucamera.so # MODULE
 lib/libcam3_pipeline.so
 lib64/libcam3_pipeline.so
 lib/libcam3_utils.so
 lib64/libcam3_utils.so
-lib/libcam.common.meizu.so
-lib64/libcam.common.meizu.so
+# lib/libcam.common.meizu.so
+# lib64/libcam.common.meizu.so
 lib/libcam.exif.v3.so
 lib64/libcam.exif.v3.so
 lib/libcam.utils.cpuctrl.so
@@ -443,6 +443,8 @@ lib64/libnvram_sec.so
 lib64/libnvram.so
 lib/libcustom_nvram.so
 lib64/libcustom_nvram.so
+lib/libhuaqinnvram.so
+lib64/libhuaqinnvram.so
 
 # ccci_ dependancy
 lib/libccci_util.so
@@ -511,8 +513,6 @@ app/Camera/lib/arm/libpanorama.so # MODULE
 # thermal_manager dependencies and profiles
 lib/libmtcloader.so
 etc/.tp/thermal.conf
-etc/.tp/thermal.high.conf
-etc/.tp/thermal.mid.conf
-etc/.tp/thermal.low.conf
 etc/.tp/thermal.off.conf
+etc/.tp/.ht120.mtc
 
