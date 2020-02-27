@@ -6,8 +6,8 @@
 ## if $1 = unzip the files will be extracted from zip file (if $1 = anything else 'adb pull' will be used
 ## $2 specifies the folder where system image is mounted or zip file to extract from (default = ../../../${DEVICE}_update.zip)
 
-VENDOR=meizu
-DEVICE=meilan2
+VENDOR=doov
+DEVICE=l5mini
 
 BASE=../../../vendor/$VENDOR/$DEVICE/proprietary
 rm -rf $BASE/*

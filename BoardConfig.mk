@@ -1,7 +1,7 @@
 USE_CAMERA_STUB := true
 
 # inherit from the proprietary version
--include vendor/meizu/meilan2/BoardConfigVendor.mk
+-include vendor/doov/l5mini/BoardConfigVendor.mk
 #64 bit
 TARGET_ARCH := arm64
 TARGET_NO_BOOTLOADER := true
@@ -38,9 +38,9 @@ BOARD_RAMDISK_OFFSET := 0x03f88000
 
 #extracted from /proc/partinfo
 BOARD_BOOTIMAGE_PARTITION_SIZE := 16777216 # 0x1000000
-BOARD_RECOVERYIMAGE_PARTITION_SIZE := 50331648 # 0x3000000
-BOARD_SYSTEMIMAGE_PARTITION_SIZE := 1610612736 # 0x60000000
-BOARD_USERDATAIMAGE_PARTITION_SIZE := 12831948800 # 0x2fcd80000
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 16777216 # 0x1000000
+BOARD_SYSTEMIMAGE_PARTITION_SIZE := 2357198848 # 0x8c800000
+BOARD_USERDATAIMAGE_PARTITION_SIZE := 12783714304 # 0x2f9f80000
 BOARD_CACHEIMAGE_PARTITION_SIZE := 419439400 # 0x19000000
 #pagesize * 64
 BOARD_FLASH_BLOCK_SIZE := 131072
@@ -51,15 +51,15 @@ BOARD_MKBOOTIMG_ARGS := --kernel_offset 0x00008000 --ramdisk_offset 0x03f88000 -
 #TARGET_KERNEL_CONFIG := cyanogenmod_meilan2_defconfig
 
 #for now lets use prebuilt
-TARGET_PREBUILT_KERNEL := device/meizu/meilan2/prebuilt/Image.gz-dtb
+TARGET_PREBUILT_KERNEL := device/doov/l5mini/prebuilt/zImage
 BOARD_HAS_NO_SELECT_BUTTON := true
 #recovery
 #TARGET_RECOVERY_INITRC := device/meizu/meilan2/recovery/init.mt6753.rc
-TARGET_RECOVERY_FSTAB := device/meizu/meilan2/recovery/root/fstab.mt6735
+TARGET_RECOVERY_FSTAB := device/doov/l5mini/recovery/root/fstab.mt6735
 TARGET_RECOVERY_LCD_BACKLIGHT_PATH := \"/sys/devices/platform/leds-mt65xx/leds/lcd-backlight/brightness\"
 
 #system.prop
-TARGET_SYSTEM_PROP := device/meizu/meilan2/system.prop
+TARGET_SYSTEM_PROP := device/doov/l5mini/system.prop
 
 # WiFi
 WPA_SUPPLICANT_VERSION := VER_0_8_X
@@ -119,7 +119,7 @@ COMMON_GLOBAL_CPPFLAGS += -DMTK_HARDWARE -DMTK_AOSP_ENHANCEMENT
 
 #EGL settings
 USE_OPENGL_RENDERER := true
-BOARD_EGL_CFG := device/meizu/meilan2/egl.cfg
+BOARD_EGL_CFG := device/doov/l5mini/egl.cfg
 
 # CyanogenMod Hardware Hooks
-BOARD_HARDWARE_CLASS := device/meizu/meilan2/cmhw/
+BOARD_HARDWARE_CLASS := device/doov/l5mini/cmhw/
